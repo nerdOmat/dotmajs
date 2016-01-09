@@ -1,0 +1,62 @@
+body {
+  font-family: "Trebuchet MS", Arial, Helvetica, sans-serif;
+	text-align: center;
+	background-repeat: repeat;
+}
+
+#wrapper {
+	margin: 0 auto;
+	text-align: center;
+}
+
+#learn_selection {
+	margin: 0 auto;
+	padding-top: 15px;
+	padding-bottom: 15px;
+	padding-left: 20px;
+	padding-right: 10px;
+	background-color: #e4e0e0;
+	border-radius: 15px;
+	max-width: 430px;
+}
+
+#query_selection {
+	margin: 0 auto;
+	padding-top: 15px;
+	padding-bottom: 15px;
+	padding-left: 20px;
+	padding-right: 20px;
+}
+
+img.navigation {
+  width: 20px;
+  padding-right: 0px;
+	vertical-align: top;
+}
+
+.learn_ui {
+	padding-right: 10px;
+}
+
+fieldset {
+	text-align: center;
+	display: inline;
+	background-color: #e4e0e0;
+	border-radius: 10px;
+	border: 0;
+	box-shadow: 15px 13px 7px -4px rgba(0,0,0,0.75);
+}
+
+legend {
+	background-color: #ff9900;
+	color: white;
+	border-radius: 5px;
+	margin-left: 10px;
+	padding-top: 3px;
+	padding-bottom: 3px;
+	padding-left: 5px;
+	padding-right: 5px;
+}
+.content {
+	margin-top: 20px;
+}

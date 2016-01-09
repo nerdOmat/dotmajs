@@ -1,0 +1,262 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<title>Hopfield Network Demo</title>
+		<link href="css/main.css" media="screen" rel="stylesheet" type="text/css" />
+		<script src="js/dotma.js"></script>
+		<script src="js/hopfield_net.js"></script>
+	</head>
+
+	<body>
+		<div id="wrapper">
+			<h1>Hopfield Network</h1>
+			<div class="content">
+			<fieldset>
+			<legend align="left">learn</legend>
+			<div id="learn_selection">	
+				<!--<canvas id="learn">
+     		 Sorry, your browser doesn't support canvas technology
+				</canvas>-->
+			</div>
+			</fieldset><br>
+			</div>
+	
+			<div class="content">
+			<fieldset>	
+			<legend align="left">query</legend>
+			<div id="query_selection">
+				<canvas id="query">
+					Sorry, your browser doesn't support canvas technology
+				</canvas>
+			</div>	
+			<div>
+				<span id="counter_log"></span>
+				<span id="mode_log"></span>
+				<button type="button" id="iterate">iterate</button></div>	
+			</fieldset>
+			</div>
+		</div>
+		<script type="text/javascript">
+
+			var learn_matrix = [];
+			var width=10;
+			
+			for (var i=0; i<4; i++) {
+				//create_canvas('learn_'+i);
+				learn_matrix[i] = matrixUI();
+				//learn_matrix[i].set_color_unset('#ffb272');
+				//learn_matrix[i].set_color_set('green');
+				learn_matrix[i].create(width, width, 'learn_'+i);
+				learn_matrix[i].create_canvas_div('learn_ui', 'learn_selection');
+				learn_matrix[i].set_form().circ(8);
+			}
+	
+			learn_matrix[0].set_row(0,0b0000000000,true); //
+			learn_matrix[0].set_row(1,0b0010001000,true); // learn_matrix[0].set_row(2,0b0101010100,true); //
+			learn_matrix[0].set_row(2,0b0101010100,true); //
+      learn_matrix[0].set_row(3,0b1000100010,true); //
+      learn_matrix[0].set_row(4,0b1000000010,true); //
+      learn_matrix[0].set_row(5,0b1000000010,true); //
+      learn_matrix[0].set_row(6,0b0100000100,true); //
+      learn_matrix[0].set_row(7,0b0010001000,true); //
+			learn_matrix[0].set_row(8,0b0001010000,true); //
+			learn_matrix[0].set_row(9,0b0000100000,true); //
+
+      learn_matrix[1].set_row(0,0b0000000000,true); //
+      learn_matrix[1].set_row(1,0b0000111110,true); //
+      learn_matrix[1].set_row(2,0b0001001001,true); //
+      learn_matrix[1].set_row(3,0b0001111111,true); //
+      learn_matrix[1].set_row(4,0b0001110111,true); //
+      learn_matrix[1].set_row(5,0b0000111110,true); //
+      learn_matrix[1].set_row(6,0b0000101010,true); //
+      learn_matrix[1].set_row(7,0b0000000000,true); //
+			learn_matrix[1].set_row(8,0b0000000000,true); //
+			learn_matrix[1].set_row(9,0b0000000000,true); //
+
+      learn_matrix[2].set_row(0,0b0001111000,true); //
+      learn_matrix[2].set_row(1,0b0100000010,true); //
+      learn_matrix[2].set_row(2,0b0000000000,true); //
+      learn_matrix[2].set_row(3,0b1001001001,true); //
+      learn_matrix[2].set_row(4,0b1000000001,true); //
+      learn_matrix[2].set_row(5,0b1000000001,true); //
+      learn_matrix[2].set_row(6,0b1010000101,true); //
+      learn_matrix[2].set_row(7,0b0001111000,true); //
+			learn_matrix[2].set_row(8,0b0100000010,true); //
+			learn_matrix[2].set_row(9,0b0001111000,true); //
+
+      learn_matrix[3].set_row(0,0b0000100000,true); //
+      learn_matrix[3].set_row(1,0b0001110000,true); //
+      learn_matrix[3].set_row(2,0b0011111000,true); //
+      learn_matrix[3].set_row(3,0b0101110100,true); //
+      learn_matrix[3].set_row(4,0b0111111100,true); //
+      learn_matrix[3].set_row(5,0b0110001100,true); //
+      learn_matrix[3].set_row(6,0b0011111000,true); //
+      learn_matrix[3].set_row(7,0b0000000000,true); //
+			learn_matrix[3].set_row(8,0b0000000000,true); //
+			learn_matrix[3].set_row(9,0b0000000000,true); //
+
+			//var learn_matrix = matrixUI(8, 8, 10, 'learn');
+			var query_matrix = matrixUI();//8, 8, 20, 'query');
+			query_matrix.create(width, width, 'query');
+			query_matrix.set_form().circ(20);
+
+			var matrix_1d = new Array(100);
+			var matrix_2d;
+			/*var matrix_2d = new Array(width);
+			for (var i=0; i<width; i++) {
+				matrix_2d[i] = new Array(width);
+			}*/
+
+			function bool2d_to_int1d(m_2d) {
+				var count=0;
+				var m_1d = Array(m_2d.length * m_2d[0].length);
+				for (var i=0; i<width; i++) {
+					for (var j=0; j<width; j++) {
+						if (m_2d[i][j]==true) {
+							m_1d[count]=1;
+						} else {
+							m_1d[count]=-1;
+						}
+						count++;
+					}
+				}
+				return m_1d;
+			}
+
+			function int1d_to_bool2d(m_1d, num_x) {
+				var count=0;
+				var num_y = Math.ceil(m_1d.length/num_x);
+				var m_2d = Array(num_x);
+				for (var i=0; i<num_x; i++) {
+					m_2d[i] = Array(num_y);
+				}
+				for (var i=0; i<num_x; i++) {
+					for (j=0; j<num_y; j++) {
+						//console.log(m_1d[count]);
+						if (m_1d[count]==(-1)) {
+							m_2d[i][j]=false;
+						} else {
+							m_2d[i][j]=true;
+						}
+						count++;
+					}
+				}
+				return m_2d;
+			}
+		
+			function randomize2d(ma_2d, factor) {
+				var num_x = ma_2d.length;
+				var num_y = ma_2d[0].length;
+				var matrix_size = num_x*num_y;
+				var num_change = Math.round(factor*matrix_size/100);
+				var rand_x = 0;
+				var rand_y = 0;
+
+				for (var i=0; i<num_change; i++) {
+					rand_x = Math.round(Math.random()*(num_x-1));
+					rand_y = Math.round(Math.random()*(num_y-1));
+					ma_2d[rand_x][rand_y] = !(ma_2d[rand_x][rand_y]);
+				}
+				return ma_2d;
+			}
+
+			// learn patterns
+			myHopFieldNet = hopfield_net(width*width);
+			myHopFieldNet.init();
+			for (var i=0; i<4; i++) {
+				matrix_2d = learn_matrix[i].get_matrix();
+				matrix_1d = bool2d_to_int1d(matrix_2d); 
+				myHopFieldNet.learn(matrix_1d);
+			}
+			console.log("all patterns learned");
+
+			//document.getElementById("iterate").onclick = function() {
+			var counter = 0;
+			var rand_index = 1;
+			// initially set query values 
+			query_matrix.set_matrix(
+				randomize2d(learn_matrix[rand_index].get_matrix(),10)
+			)
+
+			// replace by underscore.js
+			function array_2d_equal(a1,a2) {
+				if (a1.length != a2.length) {
+					return false;
+				}
+				if (a1[0].length != a2[0].length) {
+					return false;
+				}
+				for (i=0; i<a1.length; i++) {
+					for (j=0; j<a1[0].length; j++) {
+						if (a1[i][j] != a2[i][j]) {
+							//console.log(a1[i][j] + " " + a2[i][j]);
+							return false;
+						}
+					}	
+				}
+				return true;
+			}
+
+			var span_counter = document.getElementById('counter_log');
+			var span_mode = document.getElementById('mode_log');
+			var wait = 0;
+			var state = "resume";
+			var deltams = 20;			// loop time in ms
+			var pausems = 2000;		// pause time in ms
+
+			var run = setInterval(function iterate() {
+
+				switch (state) {
+					case "play":
+						span_mode.textContent = "query play";
+						matrix_2d = query_matrix.get_matrix();
+						matrix_1d=bool2d_to_int1d(matrix_2d);
+						//console.log(matrix_1d);
+						myHopFieldNet.query(matrix_1d);
+        
+						matrix_2d=int1d_to_bool2d(myHopFieldNet.get_node(),width);
+						query_matrix.set_matrix(matrix_2d);
+
+						span_counter.textContent=counter;
+						counter ++; 
+						if ( array_2d_equal( 	query_matrix.get_matrix(),
+																	learn_matrix[rand_index].get_matrix() ) )	{
+							state="pause";
+						}
+
+						break;
+
+					case "resume":
+						rand_index = Math.round(Math.random()*(4-1));
+						query_matrix.set_matrix(
+							randomize2d(learn_matrix[rand_index].get_matrix(),10)
+						)
+						// reset Hopfield
+						counter=0;
+						span_mode.textContent = "resume";
+						console.log("resume");
+						state = "play";
+						
+						break;
+
+					case "pause":
+						span_mode.textContent = "success";
+						// erstmal warten damit der Benutzer
+						// die Meldung lesen kann 
+						wait++;
+						if (wait<(pausems/deltams) ) {
+							state="pause";
+						} else {
+							state="resume";
+							wait = 0;
+						}
+				
+						break;
+				}
+
+			}, deltams);
+
+		</script>
+
+	</body>
+</html>
