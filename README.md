@@ -1,2 +1,2 @@
 # dotmajs
-javascript library for dot matrix
+javascript library for dot matrix DOM Elements.
